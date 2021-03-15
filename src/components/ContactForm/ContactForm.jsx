@@ -1,18 +1,22 @@
 import React, { Component } from 'react';
-import { v4 as uuidv4 } from 'uuid';
+//import { v4 as uuidv4 } from 'uuid';
 import PropTypes from 'prop-types';
 import { CSSTransition } from 'react-transition-group';
-//import { toast } from 'react-toastify';
-//import 'react-toastify/dist/ReactToastify.css';
 import styles from './ContactForm.module.css';
 import errorStyles from '../ErrorMessage/ErrorMessage.module.css';
 import ErrorMessage from '../ErrorMessage/ErrorMessage';
+import { connect } from 'react-redux';
+import {addContact} from '../../redux/contact-actions';
 
 class ContactForm extends Component {
-  static propTypes = {
-    contacts: PropTypes.array.isRequired,
-      filter: PropTypes.string,
-    error: PropTypes.string,
+//   static propTypes = {
+//     contacts: PropTypes.array.isRequired,
+//     filter: PropTypes.string,
+//     error: PropTypes.string,
+//   };
+    
+    static propTypes = {
+    onAdd: PropTypes.func.isRequired,
   };
 
     state = {
@@ -21,7 +25,7 @@ class ContactForm extends Component {
         error: null,
     };
 
-    handleChangeForm = ({ target }) => {
+    handleChangeForm = ({target}) => {
         const { name, value } = target
         this.setState({ [name]: value })
     };
@@ -34,14 +38,18 @@ class ContactForm extends Component {
         const isValidateForm = this.validateForm()
 
         if (!isValidateForm)
-            onAdd({ id: uuidv4(), name, phone })
+            onAdd(name, phone)
             this.resetForm()    
     };
 
     validateForm = () => {
         const { name, phone } = this.state;
-        const { contacts } = this.props
-        const isExistContact = !!contacts.find((contact) => contact.name === name);
+        // const { contacts } = this.props
+        // const isExistContact = !!contacts.find((item) => item.name === name);
+              
+const { items } = this.props
+        const isExistContact = !!items.find((contact) => contact.name.toLowerCase() === name.toLowerCase());
+
         if (!name || !phone) {
             //alert('Some filed is empty')
             this.setState({ error: 'Some filed is empty' });
@@ -96,4 +104,14 @@ ContactForm.propTypes = {
         onCheckUnique: PropTypes.func,
 };
 
-export default ContactForm;
+const mapStateToProps = (state) => {
+    return {
+        items: state.contacts.items,
+    }
+};
+
+const mapDispatchToProps = dispatch => ({
+    onAdd: (name, phone) => dispatch(addContact(name, phone)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(ContactForm);

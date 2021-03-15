@@ -1,19 +1,22 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { v4 as uuidv4 } from 'uuid';
+//import { v4 as uuidv4 } from 'uuid';
 import styles from './Filter.module.css';
+import { connect } from 'react-redux';
+import { changeFilter } from '../../redux/contact-actions';
 
 const Filter = ({ filter, onChange }) => {
-  const id = uuidv4();
+  //const id = uuidv4();
   return (
     <input
       className={styles.input}
       type='text'
       name='filter'
       value={filter}
-      onChange={({ target }) => onChange(target.value)}
+      //onChange={({ target }) => onChange(target.value)}
+      onChange={onChange}
       placeholder='Enter name for Search'
-      id={id}
+      //id={id}
     />
   )
 };
@@ -23,4 +26,13 @@ Filter.propTypes = {
   onChange: PropTypes.func.isRequired,
 };
 
-export default Filter;
+const mapStateToProps = state => ({
+  filter: state.contacts.filter,
+  items: state.contacts.items,
+});
+
+const mapDispatchToProps = dispatch => ({
+  onChange: e => dispatch(changeFilter(e.target.filter)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Filter);
